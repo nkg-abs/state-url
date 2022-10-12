@@ -1,24 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import jsonUrl from 'json-url';
 
-const Parent = ({ children }) =>
-  {
-    const [count, setCount] = useState(0);
+const App = () => {
+  const [student, setStudent] = useState({});
+  const { compress } = jsonUrl('lzma');
+  const { clipboard } = navigator;
 
-    return (
-      <div onClick={() => setCount((count) => count + 1)}>
-        count: { count }
-        <div>{ children }</div>
-      </div>
-    );
-  };
+  useEffect(() => {
+    (async () => {
+      const stateUrl = new URLSearchParams(window.location.search).get('state');
+      const { decompress } = jsonUrl('lzma');
 
-const Children = () => <span>{ Date.now() }</span>;
+      setStudent(await decompress(stateUrl));
+    })();
+  }, []);
+  
+  return (
+    <div>
+      <button onClick={async () => {
+        const encodedState = await compress(student);
 
-const App = () => 
-  <div>
-    <Parent>
-      <Children></Children>
-    </Parent>
-  </div>;
+        clipboard.writeText(`https/localhost:3003?state=${ encodedState }`);
+      }}>
+        Get Link!
+      </button>
+    </div>
+  );
+};
 
 export default App;
