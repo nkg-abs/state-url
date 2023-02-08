@@ -51,17 +51,17 @@ function Post(props) {
 // new way to fetch history with hooks
 function Users() {
   const navigate = useNavigate();
-  const { compress, decompress } = jsonUrl('lzma');
+  const { compress } = jsonUrl('lzma');
   const { clipboard } = navigator;
   const stateUrl = new URLSearchParams(window.location.search).get('state');
   const [counter, setCounter] = useState(0);
-  console.log(stateUrl ,decompress(stateUrl), 're rendered');
   
   useEffect(() => {
     (async () => {
       const { compress } = jsonUrl('lzma');
-      navigate(`/users/?state=${ await compress(counter)}`);
-      console.log('Url updated');
+      const stateUrl = new URLSearchParams(window.location.search).get('state');
+      const newState = await compress(counter);
+      stateUrl ===  newState || navigate(`/users/?state=${ newState }`);
     })();
   }, [counter, navigate]);
   useEffect(() => {
