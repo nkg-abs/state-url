@@ -13,7 +13,6 @@ const RemoteStore = (context) => {
 			url: `${ url }${ entity }/`,
 		}));
 
-
 		await pipe({ ...controllerContext, data: resp.data });
 	};
 };

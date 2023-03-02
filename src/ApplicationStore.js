@@ -1,52 +1,61 @@
-import { contains, find } from "@laufire/utils/collection";
-import { isDefined } from "@laufire/utils/reflection";
+import { contains, find } from '@laufire/utils/collection';
+import { isDefined } from '@laufire/utils/reflection';
 
-const getAction = (data) => {
-	const actionDetails = [
-		{
-			action: 'read',
-			dataExsist: true,
-			res: 'update'
-		},
-	];
+const actionDetails = [
+	{
+		action: 'read',
+		dataExsist: true,
+		res: 'update',
+	},
+];
 
-	return find(actionDetails, (detail) => contains(detail, data))?.res
-}
+const getAction = (data) =>
+	find(actionDetails, (detail) => contains(detail, data))?.res;
 
+// eslint-disable-next-line max-lines-per-function
+const ApplicationStore = (constructorContext) => {
+	const { data: constructorData, pipe = () => {} } = constructorContext;
+	const { setState, entity: defaultEntity } = constructorData;
 
-const ApplicationStore = ({ data, pipe = () => { } }) => {
-	const { state, setState, entity: defaultEntity } = data;
-
+	// TODO: crud should work on collections.
 	const actions = {
-		create: ({ entity, data, }) => {
+		create: ({ entity, data }) => {
 			setState((state) => ({
-                ...state,
-                [entity]: [...state[entity], data],
-            }));
+				...state,
+				[entity]: [...state[entity], data],
+			}));
 		},
-		delete: ({ entity, data }) => setState({
+		delete: ({ entity }) => setState((state) => ({
 			...state,
 			[entity]: [],
+		})),
+		read: () => setState((state) => {
+			pipe(state);
+			return state;
 		}),
-		read: ({ entity }) => state[entity],
 		update: ({ entity, data }) => setState((state) => ({
 			...state,
 			[entity]: data,
 		})),
 	};
 
+	const store = async (context) => {
+		// eslint-disable-next-line unused-imports/no-unused-vars
+		const { action, entity, data } = context;
 
-	const store = async ({ action, entity, data }) => {
-		const temp = getAction({ action: action, dataExsist: isDefined(data)});
+		const currentAction = getAction({
+			action: action,
+			dataExsist: isDefined(data),
+		});
 
-		actions[temp || action]({ entity: entity || defaultEntity, data });
-
-		await pipe({ action, entity, data });
+		actions[currentAction || action]({
+			entity: entity || defaultEntity,
+			data: data,
+		});
+		await pipe({ ...context, status: 'completed' });
 	};
 
 	return store;
 };
 
 export default ApplicationStore;
-
-
