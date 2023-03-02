@@ -1,4 +1,4 @@
-import { contains, find } from '@laufire/utils/collection';
+import { contains, filter, find } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
 
 const actionDetails = [
@@ -19,28 +19,22 @@ const ApplicationStore = (constructorContext) => {
 
 	// TODO: crud should work on collections.
 	const actions = {
-		create: ({ entity, data }) => {
-			setState((state) => ({
-				...state,
-				[entity]: [...state[entity], data],
-			}));
-		},
-		delete: ({ entity }) => setState((state) => ({
+		create: ({ state, entity, data }) => ({
 			...state,
-			[entity]: [],
-		})),
-		read: () => setState((state) => {
-			pipe(state);
-			return state;
+			[entity]: [...state[entity], data],
 		}),
-		update: ({ entity, data }) => setState((state) => ({
+		delete: ({ entity, state, data }) => ({
+			...state,
+			[entity]: filter(state[entity], ({ id }) => id !== data.id),
+		}),
+		read: ({ state, entity }) => state[entity],
+		update: ({ state, entity, data }) => ({
 			...state,
 			[entity]: data,
-		})),
+		}),
 	};
 
-	const store = async (context) => {
-		// eslint-disable-next-line unused-imports/no-unused-vars
+	return (context) => {
 		const { action, entity, data } = context;
 
 		const currentAction = getAction({
@@ -48,14 +42,18 @@ const ApplicationStore = (constructorContext) => {
 			dataExsist: isDefined(data),
 		});
 
-		actions[currentAction || action]({
-			entity: entity || defaultEntity,
-			data: data,
-		});
-		await pipe({ ...context, status: 'completed' });
-	};
+		setState((state) => {
+			const res = actions[currentAction || action]({
+				state: state,
+				entity: entity || defaultEntity,
+				data: data,
+			});
 
-	return store;
+			pipe({ ...context, data: res, status: 'completed' });
+
+			return res;
+		});
+	};
 };
 
 export default ApplicationStore;
