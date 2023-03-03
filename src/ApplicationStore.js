@@ -1,4 +1,7 @@
-import { contains, filter, find } from '@laufire/utils/collection';
+import {
+	contains, filter, find,
+	map,
+} from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
 
 const actionDetails = [
@@ -28,10 +31,20 @@ const ApplicationStore = (constructorContext) => {
 			[entity]: filter(state[entity], ({ id }) => id !== data.id),
 		}),
 		read: ({ state, entity }) => state[entity],
-		update: ({ state, entity, data }) => ({
-			...state,
-			[entity]: data,
-		}),
+		update: ({ state, entity, data }) => {
+			const idExsist = isDefined(data.id);
+
+			return {
+				...state,
+				[entity]: idExsist
+					? map(state[entity], (todo) => {
+						const { id } = todo;
+
+						return id === data.id ? data : todo;
+					})
+					: data,
+			};
+		},
 	};
 
 	return (context) => {
@@ -51,7 +64,7 @@ const ApplicationStore = (constructorContext) => {
 
 			pipe({ ...context, data: res, status: 'completed' });
 
-			return res;
+			return action === 'read' ? state : res;
 		});
 	};
 };

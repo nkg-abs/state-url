@@ -40,7 +40,7 @@ const App = () => {
 		}));
 	}, []);
 
-	peek(state);
+	peek(state, 'state');
 
 	return (
 		<div onClick={ async () => {
@@ -49,7 +49,7 @@ const App = () => {
 				entity: 'todos',
 				id: rndString(),
 				data: {
-					text: 'hello',
+					text: rndString(),
 					completed: false,
 				},
 			});
