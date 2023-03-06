@@ -1,4 +1,4 @@
-import { select, map } from '@laufire/utils/collection';
+import { map } from '@laufire/utils/collection';
 import { rndString } from '@laufire/utils/random';
 import { isArray } from '@laufire/utils/reflection';
 import axios from 'axios';
@@ -15,7 +15,7 @@ const RemoteStore = (context) => {
 		pipe({
 			...controllerContext,
 			status: 'pending',
-			data: select(controllerContext, ['id', 'data']),
+			data: controllerContext,
 		});
 
 		const resp = await axios(stores[action]({

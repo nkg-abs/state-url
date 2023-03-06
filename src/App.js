@@ -12,16 +12,22 @@ const App = () => {
 
 	// eslint-disable-next-line max-lines-per-function
 	useEffect(() => {
-		const appStore = ApplicationStore({
+		const lastAppStore = ApplicationStore({
 			data: {
 				setState,
 			},
 		});
 
 		const remoteStore = RemoteStore({
-			pipe: (pipeContext) => { appStore(pipeContext); },
+			pipe: (pipeContext) => { lastAppStore(pipeContext); },
 			data: {
 				url: 'http://localhost:6005/',
+			},
+		});
+
+		const appStore = ApplicationStore({
+			data: {
+				setState,
 			},
 		});
 
@@ -37,6 +43,7 @@ const App = () => {
 			...prevState,
 			appStore,
 			remoteStore,
+			lastAppStore,
 		}));
 	}, []);
 
@@ -44,13 +51,13 @@ const App = () => {
 
 	return (
 		<div onClick={ async () => {
-			await state.remoteStore({
+			await state.appStore({
 				action: 'create',
 				entity: 'todos',
 				id: rndString(),
 				data: {
 					text: rndString(),
-					completed: false,
+					completed: true,
 				},
 			});
 		} }

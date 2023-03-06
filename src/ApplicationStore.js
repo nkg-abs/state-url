@@ -1,8 +1,8 @@
 import {
 	contains, filter, find,
-	map,
+	map, select,
 } from '@laufire/utils/collection';
-import { isDefined } from '@laufire/utils/reflection';
+import { isArray, isDefined } from '@laufire/utils/reflection';
 
 const actionDetails = [
 	{
@@ -55,11 +55,12 @@ const ApplicationStore = (constructorContext) => {
 			dataExsist: isDefined(data),
 		});
 
+		// eslint-disable-next-line complexity
 		setState((state) => {
 			const res = actions[currentAction || action]({
 				state: state,
 				entity: entity || defaultEntity,
-				data: data,
+				data: isArray(data) ? data : select(context, ['id', 'data']),
 			});
 
 			pipe({ ...context, data: res, status: 'completed' });
