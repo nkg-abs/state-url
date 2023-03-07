@@ -1,8 +1,8 @@
 import {
-	contains, filter, find,
-	map, select,
+	contains, find, select,
 } from '@laufire/utils/collection';
 import { isArray, isDefined } from '@laufire/utils/reflection';
+import actions from './actions';
 
 const actionDetails = [
 	{
@@ -13,39 +13,11 @@ const actionDetails = [
 ];
 
 const getAction = (data) =>
-	find(actionDetails, (detail) => contains(detail, data))?.res;
+	find(actionDetails, (detail) => contains(detail, data))?.res || data.action;
 
-// eslint-disable-next-line max-lines-per-function
 const ApplicationStore = (constructorContext) => {
 	const { data: constructorData, pipe = () => {} } = constructorContext;
 	const { setState, entity: defaultEntity } = constructorData;
-
-	// TODO: crud should work on collections.
-	const actions = {
-		create: ({ state, entity, data }) => ({
-			...state,
-			[entity]: [...state[entity], data],
-		}),
-		delete: ({ entity, state, data }) => ({
-			...state,
-			[entity]: filter(state[entity], ({ id }) => id !== data.id),
-		}),
-		read: ({ state, entity }) => state[entity],
-		update: ({ state, entity, data }) => {
-			const idExsist = isDefined(data.id);
-
-			return {
-				...state,
-				[entity]: idExsist
-					? map(state[entity], (todo) => {
-						const { id } = todo;
-
-						return id === data.id ? data : todo;
-					})
-					: data,
-			};
-		},
-	};
 
 	return (context) => {
 		const { action, entity, data } = context;
@@ -55,9 +27,8 @@ const ApplicationStore = (constructorContext) => {
 			dataExsist: isDefined(data),
 		});
 
-		// eslint-disable-next-line complexity
 		setState((state) => {
-			const res = actions[currentAction || action]({
+			const res = actions[currentAction]({
 				state: state,
 				entity: entity || defaultEntity,
 				data: isArray(data) ? data : select(context, ['id', 'data']),
