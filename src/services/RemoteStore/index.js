@@ -1,40 +1,40 @@
 import { isArray } from '@laufire/utils/reflection';
-import { rndString } from '@laufire/utils/random';
-import { map } from '@laufire/utils/collection';
 import axios from 'axios';
-import stores from './stores';
+import payloadManager from './payloadManager';
+import setUIID from './setUIID';
 
-const appendUIID = (data) => map(data, (item) => ({
-	id: rndString(),
-	data: item,
-}));
+const status = {
+	pending: {
+		status: 'pending',
+	},
+	completed: {
+		action: 'update',
+		status: 'completed',
+	},
+	error: {
+		status: 'error',
+	},
+};
 
-// eslint-disable-next-line max-lines-per-function
-const RemoteStore = (context) => {
-	const { data: { url }, pipe } = context;
-
-	return async (controllerContext) => {
+const RemoteStore = ({ data: { url }, pipe }) =>
+	async (controllerContext) => {
 		const { action, entity } = controllerContext;
 
 		pipe({
 			...controllerContext,
-			status: 'pending',
+			...status.pending,
 		});
 
-		const resp = await axios(stores[action]({
+		const resp = await axios(payloadManager[action]({
 			...controllerContext,
 			url: `${ url }${ entity }/`,
 		}));
 
 		pipe({
 			...controllerContext,
-			action: 'update',
-			status: 'completed',
-			data: isArray(resp.data)
-				? appendUIID(resp.data)
-				: resp.data,
+			...status.completed,
+			data: isArray(resp.data) ? setUIID(resp.data) : resp.data,
 		});
 	};
-};
 
 export default RemoteStore;

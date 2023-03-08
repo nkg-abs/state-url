@@ -1,4 +1,4 @@
-const stores = {
+const actionPayload = {
 	create: ({ url, data }) => ({
 		method: 'post',
 		url: url,
@@ -27,4 +27,4 @@ const stores = {
 	},
 };
 
-export default stores;
+export default actionPayload;
