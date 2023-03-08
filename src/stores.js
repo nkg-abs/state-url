@@ -18,7 +18,7 @@ const stores = {
 	}),
 
 	read: (context) => {
-		const { data: { id }, url } = context;
+		const { data: { id } = {}, url } = context;
 
 		return {
 			method: 'get',

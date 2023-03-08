@@ -1,26 +1,28 @@
-import { map } from '@laufire/utils/collection';
-import { rndString } from '@laufire/utils/random';
 import { isArray } from '@laufire/utils/reflection';
+import { rndString } from '@laufire/utils/random';
+import { map } from '@laufire/utils/collection';
 import axios from 'axios';
 import stores from './stores';
+
+const appendUIID = (data) => map(data, (item) => ({
+	id: rndString(),
+	data: item,
+}));
 
 // eslint-disable-next-line max-lines-per-function
 const RemoteStore = (context) => {
 	const { data: { url }, pipe } = context;
 
-	// eslint-disable-next-line max-lines-per-function
 	return async (controllerContext) => {
-		const { action, entity, data = {}} = controllerContext;
+		const { action, entity } = controllerContext;
 
 		pipe({
 			...controllerContext,
 			status: 'pending',
-			data: controllerContext,
 		});
 
 		const resp = await axios(stores[action]({
 			...controllerContext,
-			data: data,
 			url: `${ url }${ entity }/`,
 		}));
 
@@ -29,10 +31,7 @@ const RemoteStore = (context) => {
 			action: 'update',
 			status: 'completed',
 			data: isArray(resp.data)
-				? map(resp.data, (item) => ({
-					id: rndString(),
-					data: item,
-				}))
+				? appendUIID(resp.data)
 				: resp.data,
 		});
 	};
