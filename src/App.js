@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import ApplicationStore from './ApplicationStore';
-import RemoteStore from './RemoteStore';
+import ApplicationStore from './services/ApplicationStore';
+import RemoteStore from './services/RemoteStore';
 import { peek } from '@laufire/utils/debug';
 import { rndString } from '@laufire/utils/random';
 
@@ -26,6 +26,7 @@ const App = () => {
 		});
 
 		const appStore = ApplicationStore({
+			pipe: (pipeContext) => { remoteStore(pipeContext); },
 			data: {
 				setState,
 			},
@@ -51,7 +52,7 @@ const App = () => {
 
 	return (
 		<div onClick={ async () => {
-			await state.appStore({
+			await state.remoteStore({
 				action: 'create',
 				entity: 'todos',
 				id: rndString(),
@@ -63,7 +64,8 @@ const App = () => {
 		} }
 		>
 			appp
-		</div>);
+		</div>
+	);
 };
 
 export default App;
