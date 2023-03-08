@@ -1,19 +1,7 @@
-import {
-	contains, find, select,
-} from '@laufire/utils/collection';
+import { select } from '@laufire/utils/collection';
 import { isArray, isDefined } from '@laufire/utils/reflection';
 import actions from './actions';
-
-const actionDetails = [
-	{
-		action: 'read',
-		dataExsist: true,
-		res: 'update',
-	},
-];
-
-const getAction = (data) =>
-	find(actionDetails, (detail) => contains(detail, data))?.res || data.action;
+import getAction from './getAction';
 
 const ApplicationStore = (constructorContext) => {
 	const { data: constructorData, pipe = () => {} } = constructorContext;
