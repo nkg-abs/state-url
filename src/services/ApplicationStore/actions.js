@@ -13,11 +13,11 @@ const actions = {
 	}),
 	read: ({ state, entity }) => state[entity],
 	update: ({ state, entity, data }) => {
-		const idExsist = isDefined(data.id);
+		const idExist = isDefined(data.id);
 
 		return {
 			...state,
-			[entity]: idExsist
+			[entity]: idExist
 				? map(state[entity], (todo) => {
 					const { id } = todo;
 

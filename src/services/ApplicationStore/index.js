@@ -1,5 +1,5 @@
 import { select } from '@laufire/utils/collection';
-import { isArray, isDefined } from '@laufire/utils/reflection';
+import { isArray } from '@laufire/utils/reflection';
 import actions from './actions';
 import getAction from './getAction';
 
@@ -10,13 +10,8 @@ const ApplicationStore = (constructorContext) => {
 	return (context) => {
 		const { action, entity, data } = context;
 
-		const currentAction = getAction({
-			action: action,
-			dataExsist: isDefined(data),
-		});
-
 		setState((state) => {
-			const res = actions[currentAction]({
+			const res = actions[getAction(context)]({
 				state: state,
 				entity: entity || defaultEntity,
 				data: isArray(data) ? data : select(context, ['id', 'data']),

@@ -1,14 +1,19 @@
-import { contains } from '@laufire/utils/collection';
+import { contains, findIndex } from '@laufire/utils/collection';
+import { isDefined } from '@laufire/utils/reflection';
 
-const actionDetails = [
-	{
+const actionDetails = {
+	update: {
 		action: 'read',
-		dataExsist: true,
-		res: 'update',
+		dataExist: true,
 	},
-];
+};
 
-const getAction = (data) =>
-	find(actionDetails, (detail) => contains(detail, data))?.res || data.action;
+const getAction = (context) => {
+	const { action, data } = context;
+	const entityType = { action: action, dataExist: isDefined(data) };
+
+	return findIndex(actionDetails, (detail) =>
+		contains(detail, entityType)) || action;
+};
 
 export default getAction;

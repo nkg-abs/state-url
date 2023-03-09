@@ -25,7 +25,7 @@ const RemoteStore = ({ data: { url }, pipe }) =>
 			...status.pending,
 		});
 
-		const resp = await axios(payloadManager[action]({
+		const { data: response } = await axios(payloadManager[action]({
 			...controllerContext,
 			url: `${ url }${ entity }/`,
 		}));
@@ -33,7 +33,7 @@ const RemoteStore = ({ data: { url }, pipe }) =>
 		pipe({
 			...controllerContext,
 			...status.completed,
-			data: isArray(resp.data) ? setUIID(resp.data) : resp.data,
+			data: isArray(response) ? setUIID(response) : response,
 		});
 	};
 
