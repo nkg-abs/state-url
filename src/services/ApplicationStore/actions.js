@@ -12,16 +12,16 @@ const actions = {
 		[entity]: filter(state[entity], ({ id }) => id !== data.id),
 	}),
 	read: ({ state, entity }) => state[entity],
-	update: ({ state, entity, data }) => {
-		const idExist = isDefined(data.id);
+	update: ({ state, entity, data: { id }, data }) => {
+		const idExist = isDefined(id);
 
 		return {
 			...state,
 			[entity]: idExist
 				? map(state[entity], (todo) => {
-					const { id } = todo;
+					const { id: todoId } = todo;
 
-					return id === data.id ? data : todo;
+					return todoId === id ? data : todo;
 				})
 				: data,
 		};
